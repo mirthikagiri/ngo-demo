@@ -1,0 +1,232 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+.App {
+  text-align: center;
+  background: #e6ffe6;
+  font-family: 'Poppins', Arial, sans-serif;
+  margin: 0;
+  min-height: 100vh;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 32px;
+  background: #c1eac5;
+  box-shadow: 0 2px 8px #0001;
+}
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-links button {
+  background: #256029;
+  color: #fff;
+  border: none;
+  margin-left: 12px;
+  padding: 8px 18px;
+  border-radius: 5px;
+  font-family: 'Poppins', Arial, sans-serif;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+  align-items: center;
+  justify-content: center;
+}
+
+.navbar-links button:hover {
+  background: #388e3c;
+}
+
+.login-container, .register-container, .donations-container, .events-container, .profile-container, .home-container {
+  background: #fff;
+  max-width: 400px;
+  margin: 40px auto 0 auto;
+  padding: 32px 28px 28px 28px;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px #0002;
+  align-items: center;
+  justify-content: center;
+
+}
+
+.register-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.register-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.register-form .input-field {
+  max-width: 320px;
+}
+
+h1, h2, h3 {
+  color: #256029;
+  font-family: 'Poppins', Arial, sans-serif;
+}
+
+.input-field {
+  display: block;
+  width: 100%;
+  margin: 12px 0;
+  padding: 10px 12px;
+  border: 1px solid #b2dfdb;
+  border-radius: 6px;
+  font-size: 16px;
+  font-family: 'Poppins', Arial, sans-serif;
+  background: #f6fff6;
+}
+
+.main-btn {
+  width: 100%;
+  background: #256029;
+  color: #fff;
+  border: none;
+  padding: 12px 0;
+  border-radius: 6px;
+  font-size: 18px;
+  font-family: 'Poppins', Arial, sans-serif;
+  margin-top: 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.main-btn:hover {
+  background: #388e3c;
+}
+
+.active {
+  background: #256029 !important;
+  color: #fff !important;
+}
+
+.link {
+  color: #256029;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.stats {
+  display: flex;
+  justify-content: space-between;
+  margin: 24px 0;
+}
+
+.usertype-btn {
+  background: #e6ffe6;
+  color: #256029;
+  border: 2px solid #256029;
+  border-radius: 6px;
+  font-family: 'Poppins', Arial, sans-serif;
+  font-size: 16px;
+  padding: 8px 24px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.usertype-btn.active, .usertype-btn:hover {
+  background: #256029;
+  color: #fff;
+}
+
+.message {
+  margin: 0 auto 18px auto;
+  max-width: 400px;
+  padding: 14px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-family: 'Poppins', Arial, sans-serif;
+  text-align: center;
+  box-shadow: 0 2px 8px #0001;
+  font-weight: 500;
+}
+.message.success {
+  background: #d4edda;
+  color: #256029;
+  border: 1.5px solid #256029;
+}
+.message.error {
+  background: #f8d7da;
+  color: #a94442;
+  border: 1.5px solid #a94442;
+}
+.message.info {
+  background: #d1ecf1;
+  color: #0c5460;
+  border: 1.5px solid #0c5460;
+}
+
+@media (max-width: 600px) {
+  .login-container, .register-container, .donations-container, .events-container, .profile-container, .home-container {
+    max-width: 95vw;
+    padding: 16px 6vw;
+  }
+  .stats {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.login-form .input-field {
+  max-width: 320px;
+}
