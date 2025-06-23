@@ -36,17 +36,17 @@ function App() {
         setMessage({ type: 'error', text: 'Server error.' });
       }
     } else if (userType === 'admin') {
-      const username = e.target[0].value;
+      const email = e.target[0].value;
       const password = e.target[1].value;
       try {
         const res = await fetch('http://localhost:5000/api/admin/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password }),
+          body: JSON.stringify({ email, password }),
         });
         const result = await res.json();
         if (res.ok) {
-          setUser({ name: 'Admin', type: 'admin' });
+          setUser({ name: result.name, type: 'admin', adminId: result.adminId });
           setPage('home');
         } else {
           setMessage({ type: 'error', text: result.message || 'Login failed.' });
@@ -115,45 +115,88 @@ function App() {
   );
 
   // Login Page
-  const LoginPage = () => (
-    <div className="login-container">
-      <h2>Login</h2>
-      <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'center', gap: '12px' }}>
-        <button
-          onClick={() => setUserType('volunteer')}
-          className={userType === 'volunteer' ? 'active usertype-btn' : 'usertype-btn'}
-          type="button"
-        >
-          Volunteer
-        </button>
-        <button
-          onClick={() => setUserType('admin')}
-          className={userType === 'admin' ? 'active usertype-btn' : 'usertype-btn'}
-          type="button"
-        >
-          Admin
-        </button>
-      </div>
-      <form onSubmit={handleLogin} className="login-form">
+  const LoginPage = () => {
+    const [showAdminRegister, setShowAdminRegister] = useState(false);
+    const [adminRegMsg, setAdminRegMsg] = useState(null);
+    const [adminRegForm, setAdminRegForm] = useState({ name: '', email: '', password: '', adminPassword: '' });
+
+    // Admin registration handler
+    const handleAdminRegister = async (e) => {
+      e.preventDefault();
+      setAdminRegMsg(null);
+      try {
+        const res = await fetch('http://localhost:5000/api/admin/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(adminRegForm),
+        });
+        const result = await res.json();
+        if (res.ok) {
+          setAdminRegMsg({ type: 'success', text: 'Admin registered! Please login.' });
+          setTimeout(() => setShowAdminRegister(false), 1500);
+        } else {
+          setAdminRegMsg({ type: 'error', text: result.message || 'Registration failed.' });
+        }
+      } catch {
+        setAdminRegMsg({ type: 'error', text: 'Server error.' });
+      }
+    };
+
+    return (
+      <div className="login-container">
+        <h2>Login</h2>
+        <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'center', gap: '12px' }}>
+          <button
+            onClick={() => { setUserType('volunteer'); setShowAdminRegister(false); }}
+            className={userType === 'volunteer' ? 'active usertype-btn' : 'usertype-btn'}
+            type="button"
+          >
+            Volunteer
+          </button>
+          <button
+            onClick={() => setUserType('admin')}
+            className={userType === 'admin' ? 'active usertype-btn' : 'usertype-btn'}
+            type="button"
+          >
+            Admin
+          </button>
+        </div>
         {userType === 'volunteer' && (
-          <>
+          <form onSubmit={handleLogin} className="login-form">
             <input type="email" placeholder="Email" required className="input-field" />
             <input type="password" placeholder="Password" required className="input-field" />
-          </>
+            <button type="submit" className="main-btn">Login</button>
+          </form>
         )}
-        {userType === 'admin' && (
+        {userType === 'admin' && !showAdminRegister && (
           <>
-            <input type="text" placeholder="Username" required className="input-field" />
-            <input type="password" placeholder="Password" required className="input-field" />
+            <form onSubmit={handleLogin} className="login-form">
+              <input type="email" placeholder="Email" required className="input-field" />
+              <input type="password" placeholder="Password" required className="input-field" />
+              <button type="submit" className="main-btn">Login</button>
+            </form>
+            <p>Not registered as admin? <span className="link" onClick={() => setShowAdminRegister(true)}>Register here</span></p>
           </>
         )}
-        <button type="submit" className="main-btn">Login</button>
-      </form>
-      {userType === 'volunteer' && (
-        <p>Not registered? <span className="link" onClick={() => setPage('register')}>Register here</span></p>
-      )}
-    </div>
-  );
+        {userType === 'admin' && showAdminRegister && (
+          <>
+            <form onSubmit={handleAdminRegister} className="login-form">
+              <input type="text" placeholder="Name" required className="input-field" value={adminRegForm.name} onChange={e => setAdminRegForm(f => ({ ...f, name: e.target.value }))} />
+              <input type="email" placeholder="Email" required className="input-field" value={adminRegForm.email} onChange={e => setAdminRegForm(f => ({ ...f, email: e.target.value }))} />
+              <input type="password" placeholder="Personal Password" required className="input-field" value={adminRegForm.password} onChange={e => setAdminRegForm(f => ({ ...f, password: e.target.value }))} />
+              <input type="password" placeholder="Admin Password (1234)" required className="input-field" value={adminRegForm.adminPassword} onChange={e => setAdminRegForm(f => ({ ...f, adminPassword: e.target.value }))} />
+              <button type="submit" className="main-btn">Register as Admin</button>
+            </form>
+            {adminRegMsg && <div className={`message ${adminRegMsg.type}`}>{adminRegMsg.text}</div>}
+            <p>Already registered? <span className="link" onClick={() => setShowAdminRegister(false)}>Login here</span></p>
+          </>
+        )}
+        {userType === 'volunteer' && (
+          <p>Not registered? <span className="link" onClick={() => setPage('register')}>Register here</span></p>
+        )}
+      </div>
+    );
+  };
 
   // Register Page (Volunteer)
   const RegisterPage = () => (
