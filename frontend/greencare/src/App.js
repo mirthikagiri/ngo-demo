@@ -36,17 +36,17 @@ function App() {
         setMessage({ type: 'error', text: 'Server error.' });
       }
     } else if (userType === 'admin') {
-      const username = e.target[0].value;
+      const email = e.target[0].value;
       const password = e.target[1].value;
       try {
         const res = await fetch('http://localhost:5000/api/admin/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password }),
+          body: JSON.stringify({ email, password }),
         });
         const result = await res.json();
         if (res.ok) {
-          setUser({ name: 'Admin', type: 'admin' });
+          setUser({ name: result.name, type: 'admin', adminId: result.adminId });
           setPage('home');
         } else {
           setMessage({ type: 'error', text: result.message || 'Login failed.' });
@@ -87,6 +87,36 @@ function App() {
       setMessage({ type: 'error', text: 'Server error.' });
     }
   };
+
+  // Admin registration handler
+  const handleAdminRegister = async (e) => {
+    e.preventDefault();
+    setMessage(null);
+    const form = e.target;
+    const data = {
+      name: form.name.value,
+      email: form.email.value,
+      password: form.password.value,
+      adminPassword: form.adminPassword.value,
+    };
+    try {
+      const res = await fetch('http://localhost:5000/api/admin/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const result = await res.json();
+      if (res.ok) {
+        setMessage({ type: 'success', text: 'Admin registered! Please login.' });
+        setTimeout(() => setPage('login'), 1500);
+      } else {
+        setMessage({ type: 'error', text: result.message || 'Registration failed.' });
+      }
+    } catch (err) {
+      setMessage({ type: 'error', text: 'Server error.' });
+    }
+  };
+
   const handleLogout = () => {
     setUser(null);
     setPage('login');
@@ -143,7 +173,7 @@ function App() {
         )}
         {userType === 'admin' && (
           <>
-            <input type="text" placeholder="Username" required className="input-field" />
+            <input type="email" placeholder="Email" required className="input-field" />
             <input type="password" placeholder="Password" required className="input-field" />
           </>
         )}
@@ -151,6 +181,9 @@ function App() {
       </form>
       {userType === 'volunteer' && (
         <p>Not registered? <span className="link" onClick={() => setPage('register')}>Register here</span></p>
+      )}
+      {userType === 'admin' && (
+        <p>Not registered as admin? <span className="link" onClick={() => setPage('admin-register')}>Register here</span></p>
       )}
     </div>
   );
@@ -167,6 +200,21 @@ function App() {
         <input type="text" placeholder="Skills (comma separated)" className="input-field" name="skills" />
         <input type="text" placeholder="Availability" className="input-field" name="availability" />
         <button type="submit" className="main-btn">Register</button>
+      </form>
+      <p>Already registered? <span className="link" onClick={() => setPage('login')}>Login here</span></p>
+    </div>
+  );
+
+  // Admin Register Page
+  const AdminRegisterPage = () => (
+    <div className="register-container">
+      <h2>Admin Registration</h2>
+      <form onSubmit={handleAdminRegister} className="register-form">
+        <input type="text" placeholder="Name" required className="input-field" name="name" />
+        <input type="email" placeholder="Email" required className="input-field" name="email" />
+        <input type="password" placeholder="Personal Password" required className="input-field" name="password" />
+        <input type="password" placeholder="Admin Password (1234)" required className="input-field" name="adminPassword" />
+        <button type="submit" className="main-btn">Register as Admin</button>
       </form>
       <p>Already registered? <span className="link" onClick={() => setPage('login')}>Login here</span></p>
     </div>
@@ -308,34 +356,62 @@ function App() {
   };
 
   // Events Page
-  const EventsPage = () => (
-    <div className="events-container">
-      {user?.type === 'admin' ? (
-        <>
-          <h2>Add Event</h2>
-          <form className="event-form">
-            <input type="text" placeholder="Title" required className="input-field" />
-            <input type="text" placeholder="Description" required className="input-field" />
-            <input type="date" required className="input-field" />
-            <input type="text" placeholder="Location" required className="input-field" />
-            <button type="submit" className="main-btn">Add Event</button>
-          </form>
-        </>
-      ) : null}
-      <h2>All Events</h2>
-      {/* TODO: Fetch and display all events from backend */}
-      <ul>
-        <li>
-          Tree Plantation Drive - June 2025
-          {user?.type === 'volunteer' && <button style={{ marginLeft: 8 }} className="main-btn">RSVP</button>}
-        </li>
-        <li>
-          Beach Cleanup - May 2025
-          {user?.type === 'volunteer' && <button style={{ marginLeft: 8 }} className="main-btn">RSVP</button>}
-        </li>
-      </ul>
-    </div>
-  );
+  const EventsPage = () => {
+    const [eventForm, setEventForm] = useState({ title: '', description: '', date: '', location: '' });
+    const [eventMsg, setEventMsg] = useState(null);
+    const handleEventChange = (e) => {
+      setEventForm({ ...eventForm, [e.target.name]: e.target.value });
+    };
+    const handleAddEvent = async (e) => {
+      e.preventDefault();
+      setEventMsg(null);
+      try {
+        const res = await fetch('http://localhost:5000/api/admin/events', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(eventForm),
+        });
+        const result = await res.json();
+        if (res.ok) {
+          setEventMsg({ type: 'success', text: 'Event added successfully!' });
+          setEventForm({ title: '', description: '', date: '', location: '' });
+        } else {
+          setEventMsg({ type: 'error', text: result.message || 'Failed to add event.' });
+        }
+      } catch {
+        setEventMsg({ type: 'error', text: 'Server error.' });
+      }
+    };
+    return (
+      <div className="events-container">
+        {user?.type === 'admin' ? (
+          <>
+            <h2>Add Event</h2>
+            {eventMsg && <div className={`message ${eventMsg.type}`}>{eventMsg.text}</div>}
+            <form className="event-form" onSubmit={handleAddEvent}>
+              <input type="text" name="title" placeholder="Title" required className="input-field" value={eventForm.title} onChange={handleEventChange} />
+              <input type="text" name="description" placeholder="Description" required className="input-field" value={eventForm.description} onChange={handleEventChange} />
+              <input type="date" name="date" required className="input-field" value={eventForm.date} onChange={handleEventChange} />
+              <input type="text" name="location" placeholder="Location" required className="input-field" value={eventForm.location} onChange={handleEventChange} />
+              <button type="submit" className="main-btn">Add Event</button>
+            </form>
+          </>
+        ) : null}
+        <h2>All Events</h2>
+        {/* TODO: Fetch and display all events from backend */}
+        <ul>
+          <li>
+            Tree Plantation Drive - June 2025
+            {user?.type === 'volunteer' && <button style={{ marginLeft: 8 }} className="main-btn">RSVP</button>}
+          </li>
+          <li>
+            Beach Cleanup - May 2025
+            {user?.type === 'volunteer' && <button style={{ marginLeft: 8 }} className="main-btn">RSVP</button>}
+          </li>
+        </ul>
+      </div>
+    );
+  };
 
   // Profile Page
   const ProfilePage = () => {
@@ -400,6 +476,7 @@ function App() {
         <Message />
         {page === 'login' && <LoginPage />}
         {page === 'register' && <RegisterPage />}
+        {page === 'admin-register' && <AdminRegisterPage />}
         {page === 'home' && <HomePage />}
         {page === 'donations' && <DonationsPage />}
         {page === 'events' && <EventsPage />}

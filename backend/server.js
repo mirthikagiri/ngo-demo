@@ -44,6 +44,14 @@ const eventSchema = new mongoose.Schema({
 });
 const Event = mongoose.model('Event', eventSchema);
 
+// --- Admin Model ---
+const adminSchema = new mongoose.Schema({
+  name: String,
+  email: { type: String, unique: true },
+  password: String, // personal password
+});
+const Admin = mongoose.model('Admin', adminSchema);
+
 // --- App Setup ---
 const app = express();
 app.use(cors());
@@ -75,13 +83,32 @@ app.post('/api/volunteer/login', async (req, res) => {
   }
 });
 
-// --- Admin Login ---
-app.post('/api/admin/login', (req, res) => {
-  const { username, password } = req.body;
-  if (username === ADMIN_USER && password === ADMIN_PASS) {
-    res.json({ message: 'Admin login successful.' });
-  } else {
-    res.status(401).json({ message: 'Invalid admin credentials.' });
+// --- Admin Registration ---
+app.post('/api/admin/register', async (req, res) => {
+  try {
+    const { name, email, password, adminPassword } = req.body;
+    if (adminPassword !== '1234') {
+      return res.status(401).json({ message: 'Invalid admin password.' });
+    }
+    const existing = await Admin.findOne({ email });
+    if (existing) return res.status(400).json({ message: 'Email already registered as admin.' });
+    const admin = new Admin({ name, email, password });
+    await admin.save();
+    res.json({ message: 'Admin registered successfully.' });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error.' });
+  }
+});
+
+// --- Admin Login (DB) ---
+app.post('/api/admin/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const admin = await Admin.findOne({ email, password });
+    if (!admin) return res.status(401).json({ message: 'Invalid admin credentials.' });
+    res.json({ message: 'Admin login successful.', adminId: admin._id, name: admin.name });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error.' });
   }
 });
 
