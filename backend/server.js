@@ -47,14 +47,6 @@ const eventSchema = new mongoose.Schema({
 });
 const Event = mongoose.model('Event', eventSchema);
 
-// --- Admin Model ---
-const adminSchema = new mongoose.Schema({
-  name: String,
-  email: { type: String, unique: true },
-  password: String, // personal password
-});
-const Admin = mongoose.model('Admin', adminSchema);
-
 // --- App Setup ---
 const app = express();
 app.use(cors());
