@@ -210,22 +210,6 @@ function App() {
         )}
         {userType === 'admin' && showAdminRegister && (
           <>
-
-            <input type="email" placeholder="Email" required className="input-field" />
-            <input type="password" placeholder="Password" required className="input-field" />
-          </>
-        )}
-        <button type="submit" className="main-btn">Login</button>
-      </form>
-      {userType === 'volunteer' && (
-        <p>Not registered? <span className="link" onClick={() => setPage('register')}>Register here</span></p>
-      )}
-      {userType === 'admin' && (
-        <p>Not registered as admin? <span className="link" onClick={() => setPage('admin-register')}>Register here</span></p>
-      )}
-    </div>
-  );
-=======
             <form onSubmit={handleAdminRegister} className="login-form">
               <input type="text" placeholder="Name" required className="input-field" value={adminRegForm.name} onChange={e => setAdminRegForm(f => ({ ...f, name: e.target.value }))} />
               <input type="email" placeholder="Email" required className="input-field" value={adminRegForm.email} onChange={e => setAdminRegForm(f => ({ ...f, email: e.target.value }))} />
@@ -240,7 +224,9 @@ function App() {
         {userType === 'volunteer' && (
           <p>Not registered? <span className="link" onClick={() => setPage('register')}>Register here</span></p>
         )}
-      </d
+      </div>
+    );
+  };
 
   // Register Page (Volunteer)
   const RegisterPage = () => (
